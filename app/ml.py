@@ -2,6 +2,7 @@
 
 import logging
 import random
+import pickle
 
 from fastapi import APIRouter
 import pandas as pd
@@ -40,8 +41,8 @@ class House(BaseModel):
         return pd.DataFrame([dict(self)])
 
 
-@router.post('/predict')
-async def predict(item: Item):
+@router.post('/predict/{description}')
+async def predict(description: str):
     """
     Make random baseline predictions for classification problem 🔮
 
@@ -57,11 +58,26 @@ async def predict(item: Item):
 
     Replace the placeholder docstring and fake predictions with your own model.
     """
-    X_new = item.to_df()
-    log.info(X_new)
-    y_pred = random.choice([True, False])
-    y_pred_proba = random.random() / 2 + 0.5
+    # return "ok"
+    filename = 'notebooks/finalized_model.sav'
+    loaded_model = pickle.load(open(filename, 'rb'))
+    print(type(loaded_model))
+    print(loaded_model)
+    # description = "Our space is a mix of a hostel and a home."
+    y = [description]
+    x = ['description'] # Series
+    df_new = pd.DataFrame(y, columns= x)
+    df_new['description']
+    # return "ok"
+    print("df")
+    print(df_new['description'])
+    pred = loaded_model.predict(df_new['description'])
+    print(pred)
+    # X_new = item.to_df()
+    # log.info(X_new)
+    # y_pred = random.choice([True, False])
+    # y_pred_proba = random.random() / 2 + 0.5
     return {
-        'prediction': y_pred,
-        'probability': y_pred_proba
+        'description': description,
+        'prediction_price': pred[0]
     }
